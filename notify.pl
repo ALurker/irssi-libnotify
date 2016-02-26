@@ -10,9 +10,9 @@ use Irssi;
 use vars qw($VERSION %IRSSI);
 use HTML::Entities;
 
-$VERSION = "0.5";
+$VERSION = "0.6";
 %IRSSI = (
-    authors     => 'Luke Macken, Paul W. Frields',
+    authors     => 'ALurker, Luke Macken, Paul W. Frields',
     contact     => 'lewk@csh.rit.edu, stickster@gmail.com',
     name        => 'notify.pl',
     description => 'Use D-Bus to alert user to hilighted messages',
@@ -116,7 +116,20 @@ sub dcc_request_notify {
     notify($server, "DCC ".$dcc->{type}." request", $dcc->{nick});
 }
 
+sub message_public_notify {
+	my ($server, $msg, $nick, $address, $target) = @_;
+    
+	return if (!$server);
+	my $escapeNick = quotemeta $server->{nick};
+	if ($msg =~ /$escapeNick/) {
+		notify($server, "PUB from ".$nick, Windowitem::is_active());
+	}
+	#my $test = Irssi::Window::get_active_name();
+	#notify($server, "PUB from ".$nick, $test);
+}
+
 Irssi::signal_add('print text', 'print_text_notify');
 Irssi::signal_add('message private', 'message_private_notify');
+Irssi::signal_add('message public', 'message_public_notify');
 Irssi::signal_add('dcc request', 'dcc_request_notify');
 
